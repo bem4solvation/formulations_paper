@@ -1,20 +1,20 @@
 import os.path
-import bem_electrostatics
+import pbj
 import resource
 import csv
+import sys
     
 csv_file = sys.argv[1]
 solute_file  = sys.argv[2]
 density = float(sys.argv[3])
 
 formulation = sys.argv[4]
-discrete_form = sys.argv[5]
-precon_type = sys.argv[6]
+precon_type = sys.argv[5]
 
-expansion_order = int(sys.argv[7])
-ncrit = int(sys.argv[8])
+expansion_order = int(sys.argv[6])
+ncrit = int(sys.argv[7])
 
-quadrature_points = int(sys.argv[9])
+quadrature_points = int(sys.argv[8])
 
 
 csv_columns = ["molecule",
@@ -36,25 +36,24 @@ csv_columns = ["molecule",
                "fmm_ncrit",
                "assembler",
                "quadrature_points",
-               "discrete_form",
                "formulation",
                "precon_bool",
                "precon_type"]
 
 
-bem_electrostatics.bempp.api.enable_console_logging('info')
+pbj.electrostatics.solute.bempp.api.enable_console_logging('info')
 
-bem_electrostatics.bempp.api.GLOBAL_PARAMETERS.fmm.expansion_order = expansion_order
-bem_electrostatics.bempp.api.GLOBAL_PARAMETERS.fmm.ncrit = ncrit
+pbj.electrostatics.solute.bempp.api.GLOBAL_PARAMETERS.fmm.expansion_order = expansion_order
+pbj.electrostatics.solute.bempp.api.GLOBAL_PARAMETERS.fmm.ncrit = ncrit
 
-bem_electrostatics.bempp.api.GLOBAL_PARAMETERS.quadrature.regular = quadrature_points
+pbj.electrostatics.solute.bempp.api.GLOBAL_PARAMETERS.quadrature.regular = quadrature_points
 
-protein = bem_electrostatics.Solute(solute_file,
-                                    mesh_density = density,
-                                    mesh_probe_radius = 1.4,
-                                    mesh_generator = "nanoshaper",
-                                    print_times = False,
-                                    force_field = "parse")
+protein = pbj.Solute(solute_file,
+                     mesh_density = density,
+                     mesh_probe_radius = 1.4,
+                     mesh_generator = "nanoshaper",
+                     print_times = False,
+                     force_field = "parse")
 
 
 protein.ep_in = 4.0 
@@ -64,7 +63,6 @@ protein.kappa = 0.125
 protein.gmres_restart = protein.gmres_max_iterations
 
 protein.pb_formulation = formulation
-protein.discrete_form_type = discrete_form
 
 
 if precon_type == "none":
@@ -96,7 +94,7 @@ result = {"molecule" : protein.solute_name,
           "total_time" : protein.timings['time_compute_potential']+protein.timings['time_calc_energy'],
           "matrix_initialisation" : protein.timings['time_matrix_initialisation'],
           "matrix_assembly" : protein.timings['time_matrix_assembly'],
-          "rhs_construction" : protein.timings['time_rhs_construction'],
+          "rhs_construction" : protein.timings['time_rhs_initialisation'],
           "preconditioning_time" : protein.timings['time_preconditioning'],
           "gmres_time" : protein.timings['time_gmres'],
           "potential_time" : protein.timings['time_compute_potential'],
@@ -106,8 +104,7 @@ result = {"molecule" : protein.solute_name,
           "fmm_order" : expansion_order,
           "fmm_ncrit" : ncrit,
           "assembler" : protein.operator_assembler,
-          "quadrature_points" : bem_electrostatics.bempp.api.GLOBAL_PARAMETERS.quadrature.regular,
-          "discrete_form" : discrete_form,
+          "quadrature_points" : pbj.electrostatics.solute.bempp.api.GLOBAL_PARAMETERS.quadrature.regular,
           "formulation" : formulation,
           "precon_bool" : protein.pb_formulation_preconditioning,
           "precon_type": precon_type}

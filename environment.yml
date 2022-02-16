@@ -28,4 +28,4 @@ dependencies:
     - meshio
     - "git+https://github.com/bempp/bempp-cl.git@master"
     - "git+https://github.com/exafmm/exafmm-t.git@master"
-    - "git+https://github.com/bem4solvation/bem_electrostatics.git@dev"
+    - "git+https://github.com/bem4solvation/pbj.git@master"
