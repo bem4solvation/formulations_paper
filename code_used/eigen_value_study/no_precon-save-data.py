@@ -1,11 +1,12 @@
-import bem_electrostatics
+import pbj
 import numpy as np
 import scipy
 import pandas as pd
 import pickle
+import sys
 
 
-bem_electrostatics.bempp.api.enable_console_logging("info")
+pbj.electrostatics.solute.bempp.api.enable_console_logging("info")
 
 folder = sys.argv[1]
 molecule_file_path = sys.argv[2]
@@ -14,13 +15,13 @@ formulation = sys.argv[4]
 form_type = sys.argv[5]
 
 
-protein = bem_electrostatics.Solute(molecule_file_path,
-                                    mesh_density = density,
-                                    mesh_probe_radius = 1.4,
-                                    mesh_generator = "nanoshaper",
-                                    print_times = False,
-                                    save_mesh_build_files = False,
-                                    force_field = "parse")
+protein = pbj.Solute(molecule_file_path,
+                     mesh_density = density,
+                     mesh_probe_radius = 1.4,
+                     mesh_generator = "nanoshaper",
+                     print_times = False,
+                     save_mesh_build_files = False,
+                     force_field = "parse")
 
 print("Formulation type is: "+formulation)
 protein.discrete_form_type = form_type
